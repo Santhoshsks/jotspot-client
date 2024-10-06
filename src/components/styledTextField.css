@@ -1,0 +1,4 @@
+.customTextFieldInput:focus {
+    outline: none !important;
+    border-bottom: none !important;
+}

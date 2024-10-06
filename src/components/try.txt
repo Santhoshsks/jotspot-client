@@ -1,0 +1,215 @@
+import * as React from 'react';
+import { useState, useEffect } from 'react';
+import Box from '@mui/material/Box';
+import TextField from '@mui/material/TextField';
+import { NoteObject } from '../models/note';
+import {v4 as uuid} from 'uuid';
+import { Button, Card, CardActionArea, CardActions, CardContent,InputBase } from '@mui/material';
+
+import './styledTextField.css'
+const defaultObj = {
+    id: '0', 
+    title: '',
+    content: '',
+    deleted: false,
+    pinned: false,
+    createdAt : new Date(),
+    updatedAt: new Date()
+} 
+
+interface CreateProps{
+    onAdd: (note:NoteObject)=>void
+    open: boolean
+}
+
+export default function TextFields({ onAdd, open }: CreateProps) {
+  const [note, setNote] = useState<NoteObject>(defaultObj);
+  const [openStatus, setOpen] = useState(false);
+
+  const handleClickOpen = () => {
+      setOpen(true);
+  };
+
+  const handleClose = () => {
+      setOpen(false);
+  };
+
+  function handleChange(e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) {
+      const { id, value } = e.target;
+      setNote((prevValue) => ({
+          ...prevValue,
+          [id]: value,
+      }));
+  }
+
+  function submit(e: React.FormEvent) {
+      e.preventDefault();
+      onAdd({ ...note, id: uuid() });
+      setNote(defaultObj);
+      handleClose();
+  }
+
+  useEffect(() => {
+      const handleClickOutside = (event: MouseEvent) => {
+          if (openStatus) {
+              handleClose();
+          }
+      };
+      document.addEventListener('click', handleClickOutside);
+      return () => {
+          document.removeEventListener('click', handleClickOutside);
+      };
+  }, [openStatus]);
+
+  return (
+        <Card sx={{ minWidth: 100, maxWidth: 250, marginLeft: 10 }}>
+            <CardContent>
+                    <InputBase
+                        name="title"
+                        value={note.title}
+                        onChange={handleChange}
+                        required
+                        fullWidth
+                        placeholder="Title"
+                        inputProps={{ 'aria-label': 'title' }}
+                    />
+                    <InputBase
+                        name="content"
+                        value={note.content}
+                        onChange={handleChange}
+                        required
+                        fullWidth
+                        multiline
+                        rows={4}
+                        placeholder="Jot down..."
+                        inputProps={{ 'aria-label': 'content' }}
+                    />
+                    <Button onClick={submit} variant="contained">Add</Button>
+            </CardContent>
+        </Card>
+    );
+}
+
+
+import * as React from 'react';
+import { useState, useEffect } from 'react';
+import Box from '@mui/material/Box';
+import TextField from '@mui/material/TextField';
+import { NoteObject } from '../models/note';
+import {v4 as uuid} from 'uuid';
+import { Button } from '@mui/material';
+import './styledTextField.css'
+const defaultObj = {
+    id: '0', 
+    title: '',
+    content: '',
+    deleted: false,
+    pinned: false,
+    createdAt : new Date(),
+    updatedAt: new Date()
+} 
+
+interface CreateProps{
+    onAdd: (note:NoteObject)=>void
+    open: boolean
+}
+
+export default function TextFields({onAdd,open}:CreateProps) {
+    const [note,setNote]= useState<NoteObject>(defaultObj);
+    const [openStatus, setOpen] = useState(false);
+    const handleClickOpen = () => {
+      setOpen(true);
+    };
+    const handleClose = () => {
+      setOpen(false);
+    };
+  
+    function handleChange(e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>){
+        const {id,value}= e.target;
+        setNote((prevValue)=>{
+            return {
+                ...prevValue,
+                [id]:value,
+            }
+        })
+    }
+    function submit(e:React.FormEvent){
+        e.preventDefault()
+        onAdd({...note,id:uuid() });
+        setNote(defaultObj);
+        }
+    
+    useEffect(() => {
+      const handleClickOutside = (event: MouseEvent) => {
+          if (openStatus) {
+              handleClose();
+          }
+      };
+      document.addEventListener('click', handleClickOutside);
+      return () => {
+          document.removeEventListener('click', handleClickOutside);
+      };
+  }, [openStatus]);
+  return (
+    <Box
+      component="form"
+      sx={{
+                display: 'flex',
+                flexDirection: 'column',
+                alignItems: 'center',
+                '& > :not(style)': { m: 'auto', width: '100%' },
+                maxWidth: 450,
+                minWidth: 200,
+                padding: 5,
+                margin: '0 auto'
+            }}
+      noValidate
+      autoComplete="off"
+      onClick={(e) => e.stopPropagation()}
+    >
+        
+      <TextField
+      id="title"
+      name="title"
+      value={note.title}
+      variant="outlined"
+      onChange={handleChange}
+      required
+      placeholder='Title'
+      onClick={handleClickOpen}
+      fullWidth
+      inputProps={{ className: 'customTextFieldInput' }} // Apply custom class to input element
+      sx={{
+          '& fieldset': {
+              borderBottom: 'none',
+              borderBottomLeftRadius: 0,
+              borderBottomRightRadius: 0,
+          },
+          }}
+      />
+
+
+        {openStatus&&
+        <>
+        <TextField id="content"
+        name="content"
+        onChange={handleChange} 
+        value={note.content}
+        multiline 
+        required 
+        placeholder='Jot down...' 
+        variant="outlined"
+        fullWidth
+        sx={{
+          '& fieldset': {
+              borderTop: 'none',
+              borderTopLeftRadius: 0,
+              borderTopRightRadius: 0
+          }
+      }}
+        inputProps={{maxlength:100000}} />
+        <br/><Button variant='contained' onClick={submit}>Add</Button>
+        </>}
+    </Box>
+  );
+}
