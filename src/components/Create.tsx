@@ -40,7 +40,6 @@ export default function Create({ onAdd }: CreateProps) {
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const { id, value } = e.target;
-    // console.log(id)
     setNote((prevNote) => ({
       ...prevNote,
       [id]: value,
@@ -95,7 +94,6 @@ export default function Create({ onAdd }: CreateProps) {
           id="note-card"
           onClick={() => {
             setExpanded(true);
-            console.log("opened");
           }}
         >
           <CardHeader
@@ -159,7 +157,6 @@ export default function Create({ onAdd }: CreateProps) {
                   id="color"
                   type="color"
                   value={note.color}
-                  defaultValue="#ffffff"
                   onChange={handleChange}
                   sx={{
                     width: 0, 

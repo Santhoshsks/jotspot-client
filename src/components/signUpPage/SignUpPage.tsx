@@ -16,7 +16,6 @@ export default function SignUpPage(){
     const [details, setDetails] = useState<UserDetails>(defaultObj);
     const navigate= useNavigate()
     const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-        console.log(e.target.name,':', e.target.value);
         setDetails({
             ...details,
             [e.target.name]: e.target.value
@@ -29,7 +28,6 @@ export default function SignUpPage(){
         if (token) {
             navigate('/app'); 
         }
-        console.log('Submitted for registering:', details);
     };
 
     return (

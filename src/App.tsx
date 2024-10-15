@@ -26,7 +26,6 @@ function App() {
     const loadNotes = async () => {
       try {
         const fetchedNotes = await fetchNotes();
-        console.log(fetchedNotes);
         setNotes(fetchedNotes);
         checkPinnedStatus(fetchedNotes);
       } catch (error) {

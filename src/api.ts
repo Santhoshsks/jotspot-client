@@ -34,8 +34,7 @@ export const login = async(credentials:LoginProps):Promise<string> =>{
     const response = await fetch('http://localhost:8080/api/v1/auth/authenticate', {
       method: 'POST',
       headers: {
-        'Content-Type': 'application/json',
-        'ngrok-skip-browser-warning': 'true',
+        'Content-Type': 'application/json'
       },
       body: JSON.stringify(credentials),
     });
@@ -52,24 +51,25 @@ export const login = async(credentials:LoginProps):Promise<string> =>{
 
   export const register = async(userDetails:UserDetails):Promise<string> =>{
     try {
-      console.log('json'+JSON.stringify(userDetails))
       const response = await fetch('http://localhost:8080/api/v1/auth/register', {
         method: 'POST',
         headers: {
-          'Content-Type': 'application/json',
-          'ngrok-skip-browser-warning': 'true',
+          'Content-Type': 'application/json'
         },
         body: JSON.stringify(userDetails),
       });
       if (!response.ok) {
-        throw new Error(`Error: ${response.status} ${response.statusText}`);
+        const data = await response.json();
+        const errorMessage = data.token;
+        alert(`Error: ${errorMessage || "Unknown error occurred"}`);
+        return "";
       }
       const data = await response.json();
       const token = data.token;
       localStorage.setItem('authToken', token);
-      console.log('data',data)
       return token;
     } catch (error) {
+      alert('Failed to register. Please try again.');
       console.log('Failed to register:', error);
       throw error;
     }}
@@ -83,8 +83,7 @@ export const addNote = async (newNote: NoteObject): Promise<NoteObject> => {
       method: 'POST',
       headers: {
         'Authorization': `Bearer ${authToken}`,
-        'Content-Type': 'application/json',
-        'ngrok-skip-browser-warning': 'true',
+        'Content-Type': 'application/json'
       },
       body: JSON.stringify(newNote),
     });
@@ -105,8 +104,7 @@ export const deleteNote = async (id: string): Promise<void> => {
     const response = await fetch(`http://localhost:8080/api/notes/${id}`, {
       method: 'DELETE',
       headers: {
-            'Authorization': `Bearer ${authToken}`,
-            'ngrok-skip-browser-warning': 'true',}
+            'Authorization': `Bearer ${authToken}`}
       
     });
     if (!response.ok) {
@@ -126,7 +124,6 @@ export const editNote = async (id: string, editedNote: NoteObject): Promise<Note
       headers: {
         'Authorization': `Bearer ${authToken}`,
         'Content-Type': 'application/json',
-        'ngrok-skip-browser-warning': 'true',
       },
       body: JSON.stringify(editedNote),
     });
@@ -145,8 +142,7 @@ export const searchNotes = async (keyword : string): Promise<NoteObject[]> => {
     const authToken = localStorage.getItem('authToken');
     const response = await fetch(`http://localhost:8080/api/notes/search/${keyword}`,{
       headers: {
-          'Authorization': `Bearer ${authToken}`,
-          'ngrok-skip-browser-warning': 'true',}
+          'Authorization': `Bearer ${authToken}`}
     });
     if (!response.ok) {
       throw new Error(`Error: ${response.status} ${response.statusText}`);
