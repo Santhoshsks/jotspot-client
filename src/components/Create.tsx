@@ -10,6 +10,11 @@ import {
   ClickAwayListener,
   CardHeader,
   IconButton,
+  Dialog,
+  DialogTitle,
+  DialogContent,
+  DialogActions as MuiDialogActions,
+  Alert,
 } from "@mui/material";
 import PushPinOutlinedIcon from "@mui/icons-material/PushPinOutlined";
 import PushPinIcon from "@mui/icons-material/PushPin";
@@ -33,13 +38,31 @@ interface CreateProps {
   onAdd: (note: NoteObject) => void;
 }
 
+const MAX_TITLE_LENGTH = 255;
+
 export default function Create({ onAdd }: CreateProps) {
   const [note, setNote] = useState<NoteObject>(defaultObj);
   const [expanded, setExpanded] = useState(false);
   const [pinned, setPinned] = useState(false);
+  const [errorOpen, setErrorOpen] = useState(false);
+  const [titleError, setTitleError] = useState("");
+
+  const checkTitleLength = (value: string) => {
+    if (value.length > MAX_TITLE_LENGTH) {
+      setTitleError("Title must be 255 characters or less.");
+      setErrorOpen(true);
+      return false;
+    }
+    setTitleError("");
+    return true;
+  };
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const { id, value } = e.target;
+    if (id === "title") {
+      // Validate as user types
+      if (!checkTitleLength(value)) return;
+    }
     setNote((prevNote) => ({
       ...prevNote,
       [id]: value,
@@ -47,6 +70,7 @@ export default function Create({ onAdd }: CreateProps) {
   };
 
   const handleSubmit = () => {
+    if (!checkTitleLength(note.title)) return; // Prevent submit if too long
     if (note.title.trim() !== "" || note.content.trim() !== "") {
       onAdd({ ...note, id: uuid() });
       setNote(defaultObj);
@@ -56,6 +80,7 @@ export default function Create({ onAdd }: CreateProps) {
 
   const handleClose = (e: React.MouseEvent<HTMLButtonElement>) => {
     e.stopPropagation();
+    if (!checkTitleLength(note.title)) return;
     if (note.title.trim() !== "" || note.content.trim() !== "") {
       onAdd({ ...note, id: uuid() });
       setNote(defaultObj);
@@ -108,8 +133,12 @@ export default function Create({ onAdd }: CreateProps) {
                   required
                   fullWidth
                   placeholder={expanded ? "Title" : "Jot down..."}
-                  inputProps={{ "aria-label": "title" }}
+                  inputProps={{
+                    "aria-label": "title",
+                    maxLength: MAX_TITLE_LENGTH + 1 // allow input until JS limit
+                  }}
                   sx={{ paddingTop: 5 }}
+                  error={!!titleError}
                 />
               </Typography>
             }
@@ -159,28 +188,27 @@ export default function Create({ onAdd }: CreateProps) {
                   value={note.color}
                   onChange={handleChange}
                   sx={{
-                    width: 0, 
+                    width: 0,
                     height: 0,
-                    opacity: 0, 
-                    position: "absolute", 
+                    opacity: 0,
+                    position: "absolute",
                   }}
                 />
                 <ColorLensOutlined
                   sx={{
                     fontSize: 24,
-                    color: note.color === "#ffffff" ? "grey" : note.color, 
+                    color: note.color === "#ffffff" ? "grey" : note.color,
                     cursor: "pointer",
                     transition: "transform 0.3s ease",
                     "&:hover": {
-                      transform: "scale(1.1)", 
+                      transform: "scale(1.1)",
                     },
                   }}
                   onClick={() => {
-                    document.getElementById("color")?.click(); 
+                    document.getElementById("color")?.click();
                   }}
                 />
               </Box>
-
               <Button onClick={handleClose} variant="text" color="primary">
                 Close
               </Button>
@@ -188,6 +216,16 @@ export default function Create({ onAdd }: CreateProps) {
           )}
         </Card>
       </ClickAwayListener>
+      {/* Error Dialog */}
+      <Dialog open={errorOpen} onClose={() => setErrorOpen(false)}>
+        <DialogTitle>Error</DialogTitle>
+        <DialogContent>
+          <Alert severity="error">{titleError}</Alert>
+        </DialogContent>
+        <MuiDialogActions>
+          <Button onClick={() => setErrorOpen(false)}>OK</Button>
+        </MuiDialogActions>
+      </Dialog>
     </Box>
   );
 }

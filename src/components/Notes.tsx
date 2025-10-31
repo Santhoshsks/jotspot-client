@@ -8,6 +8,7 @@ import { NoteObject } from "../models/note";
 import { CardActionArea } from "@mui/material";
 import FormDialog from "./Dialog";
 import { useState } from "react";
+import reactStringReplace from 'react-string-replace';
 
 interface INoteProps {
   note: NoteObject;
@@ -15,6 +16,13 @@ interface INoteProps {
   editNote: (id: string, editedNote: NoteObject) => void;
   searchTerm?: string;
 }
+
+const highlightText = (text: string, searchTerm?: string): React.ReactNode => {
+  if (!searchTerm) return text;
+  return reactStringReplace(text, new RegExp(`(${searchTerm})`, 'gi'), (match, i) => (
+    <mark key={i}>{match}</mark>
+  ));
+};
 
 const Notes = ({ note, deleteNote, editNote, searchTerm }: INoteProps) => {
   const [delNote, setDelNote] = useState<NoteObject>(note);
@@ -40,8 +48,6 @@ const Notes = ({ note, deleteNote, editNote, searchTerm }: INoteProps) => {
     editNote(note.id, updatedNote);
   };
 
-  const Highlight = require("react-highlighter");
-
   return (
     <>
       <Card
@@ -55,29 +61,26 @@ const Notes = ({ note, deleteNote, editNote, searchTerm }: INoteProps) => {
               gutterBottom
               sx={{ fontWeight: "bold", fontSize: 20 }}
             >
-              <Highlight search={searchTerm}>{note.title}</Highlight>
+              {highlightText(note.title, searchTerm)}
             </Typography>
             <Typography variant="body2" color="textSecondary">
-              <Highlight search={searchTerm}>
-                {note.content.slice(0, 300)}
-              </Highlight>
-              {/* what about content beyond 100 words? */}
+              {highlightText(note.content.slice(0, 300), searchTerm)}
             </Typography>
           </CardContent>
           {note.archived && (
             <CardActions>
-            <IconButton
-              aria-label="delete"
-              size="large"
-              onClick={(event) => {
-                event.stopPropagation();
-                handleArchive();
-              }}
-              onMouseDown={(event) => event.stopPropagation()}
-            >
-              <Unarchive />
-            </IconButton>
-          </CardActions>
+              <IconButton
+                aria-label="delete"
+                size="large"
+                onClick={(event) => {
+                  event.stopPropagation();
+                  handleArchive();
+                }}
+                onMouseDown={(event) => event.stopPropagation()}
+              >
+                <Unarchive />
+              </IconButton>
+            </CardActions>
           )}
           {note.deleted && (
             <CardActions>
